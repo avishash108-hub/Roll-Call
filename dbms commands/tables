@@ -13,3 +13,5 @@ alter table timetable alter column sub_id set NOT NULL;
 
 5. attendance
 create table attendance(att_id int primary key NOT NULL, stud_id int NOT NULL, sub_id int NOT NULL, date DATE NOT NULL, status varchar(8) check(status in('present', 'absent')) NOT NULL, foreign key(stud_id) references student(stud_id), foreign key(sub_id) references subject(sub_id));
+6. notes
+create table notes(note_id int primary key, stud_id int NOT NULL, date DATE NOT NULL, text TEXT, foreign key(stud_id) references student(stud_id));
