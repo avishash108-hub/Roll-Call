@@ -1,4 +1,7 @@
 1. student
   create table student(stud_id int primary key, stud_name varchar(100) NOT NULL, Email varchar(200) UNIQUE NOT NULL, pwd_hash varchar(255) NOT NULL, Branch varchar(80), section varchar(10));
-2. subject
+2. studies(intermediate entity)
+create table studies(stud_id int, sub_id int, primary key(stud_id, sub_id), foreign key(stud_id) references student(stud_id), foreign key(sub_id) references subject(sub_id));
+3. subject
 create table subject(sub_id int primary key, sub_name varchar(100) NOT NULL);
+
