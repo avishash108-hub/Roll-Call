@@ -11,3 +11,5 @@ create table timetable(stud_id int, sub_id int, day varchar(10) check(day in('Mo
 changing sub_id constraint to not null using postgres
 alter table timetable alter column sub_id set NOT NULL;
 
+5. attendance
+create table attendance(att_id int primary key NOT NULL, stud_id int NOT NULL, sub_id int NOT NULL, date DATE NOT NULL, status varchar(8) check(status in('present', 'absent')) NOT NULL, foreign key(stud_id) references student(stud_id), foreign key(sub_id) references subject(sub_id));
