@@ -1,2 +1,4 @@
 1. student
   create table student(stud_id int primary key, stud_name varchar(100) NOT NULL, Email varchar(200) UNIQUE NOT NULL, pwd_hash varchar(255) NOT NULL, Branch varchar(80), section varchar(10));
+2. subject
+create table subject(sub_id int primary key, sub_name varchar(100) NOT NULL);
