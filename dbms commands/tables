@@ -5,3 +5,9 @@ create table studies(stud_id int, sub_id int, primary key(stud_id, sub_id), fore
 3. subject
 create table subject(sub_id int primary key, sub_name varchar(100) NOT NULL);
 
+4. timetable
+create table timetable(stud_id int, sub_id int, day varchar(10) check(day in('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday')) NOT NULL, period_no int NOT NULL, primary key(stud_id, day, period_no), foreign key(stud_id) references student(stud_id), foreign key(sub_id) references subject(sub_id));
+
+changing sub_id constraint to not null using postgres
+alter table timetable alter column sub_id set NOT NULL;
+
