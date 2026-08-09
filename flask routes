@@ -30,7 +30,7 @@ def fetch_att():
 data = request.get_json()
 date = data.get("date", "")
 #sql query
-con = name.connect(...)
+con = name.connect(database = "", user = "postgres", password = "", port = "")
 cur = con.cursor()
 cur.execute("select attendance.date, subject.sub_name, attendance.status from attendance join subject on attendance.sub_id = subject.sub_id where attendance.date = %s and attendance.stud_id = %s" (date, stud_id))
 #fetching recs
