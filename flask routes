@@ -29,5 +29,11 @@ ii) get
 def fetch_att():
 data = request.get_json()
 date = data.get("date", "")
-
-mmm
+#sql query
+con = name.connect(...)
+cur = con.cursor()
+cur.execute("select attendance.date, subject.sub_name, attendance.status from attendance join subject on attendance.sub_id = subject.sub_id where attendance.date = %s and attendance.stud_id = %s" (date, stud_id))
+con.commit()
+cur.close()
+con.close()
+return jsonify({"date" : date, "subject" : , "", "status" : }), 200
