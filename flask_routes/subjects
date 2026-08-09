@@ -26,9 +26,38 @@ def fetch_sub():
  con = name.connect(...)
  cur = con.cursor()
  #data gives a full list so
- cur.execute("select sub_name from subject join studies on subject.sub_id = studies.sub_id where studies.stud_id = %s", (stud_id,)))
+ cur.execute("select subject.sub_id, subject.sub_name from subject join studies on subject.sub_id = studies.sub_id where studies.stud_id = %s", (stud_id,)))
  rec = cur.fetchall()
  cur.close()
  con.close()
-subnames = [row[0] for row in rec] #removes tuple wrapper arounde each sub_name as postgres returns in form of 1 tuple as 1 row all tuples inside a list
+subnames = []
+for sub in rec: #fetchall() sending like [(), ()....] where each tuple represents one row and all is enclosed inside a list
+sub_id = sub[0]
+sub_name = sub[1]
+subnames.append({"sub_id" : sub_id, "sub_name" : sub_name})
+
 return jsonify({"subjects" : subnames}), 200
+
+
+
+iii) patch
+FRONTEND SENDS:
+{"sub_id" : ..., "mew_sub_name" : }
+@app.route("/subjects", methods = ["PATCH"])
+#stud_id = from jwt
+def add_sub():
+data = request.get_json()
+sub_id = data.get("sub_id")
+new_sub = data.get("new_sub_name")
+
+ #sql query
+ con = name.connect(...)
+ cur = con.cursor()
+ #data gives a full list so
+ 
+ cur.execute("update sub_name set ") #one element tuple, we use tuples to pass values here
+ con.commit()
+ cur.close()
+ con.close()
+ return "subjects added successfully", 200
+
