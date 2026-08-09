@@ -1,0 +1,35 @@
+i) post
+
+@app.route("/subjects", methods = ["POST"])
+#stud_id = from jwt
+def add_sub():
+ data = request.get_json()
+ subjects = data.get("subject", "")
+ #sql query
+ con = name.connect(...)
+ cur = con.cursor()
+ #data gives a full list so
+ for sub in subjects:
+ cur.execute("insert into subject(sub_name) values(%s)", (sub, )) #one element tuple, we use tuples to pass values here
+ con.commit()
+ cur.close()
+ con.close()
+ return "subjects added successfully", 200
+ 
+ 
+ii) get
+@app.route("/subjects", methods = ["GET"])
+#stud_id = from jwt
+def fetch_sub():
+ 
+ #sql query
+ con = name.connect(...)
+ cur = con.cursor()
+ #data gives a full list so
+ cur.execute("select sub_name from subject join studies on subject.sub_id = studies.sub_id where studies.stud_id = %s", (stud_id,)))
+ rec = cur.fetchall()
+ cur.close()
+ con.close()
+subnames = [row[0] for row in rec] #removes tuple wrapper arounde each sub_name as postgres returns in form of 1 tuple as 1 row all tuples inside a list
+return jsonify({"subjects" : subnames}), 200
+ 
