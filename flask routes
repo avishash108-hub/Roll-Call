@@ -33,7 +33,15 @@ date = data.get("date", "")
 con = name.connect(...)
 cur = con.cursor()
 cur.execute("select attendance.date, subject.sub_name, attendance.status from attendance join subject on attendance.sub_id = subject.sub_id where attendance.date = %s and attendance.stud_id = %s" (date, stud_id))
+#fetching recs
+records = cur.fetchall()
 con.commit()
 cur.close()
 con.close()
-return jsonify({"date" : date, "subject" : , "", "status" : }), 200
+#building json
+att = []
+for row in records:
+attendance.append({"date" : row[0], "subject" : row[1], "period" : row[2], "status" : row[3]})
+return jsonify({"attendance" : attendance}), 200
+
+
