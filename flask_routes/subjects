@@ -62,3 +62,23 @@ new_sub = data.get("new_sub_name")
  return "subjects added successfully", 200
 
 
+iv) delete
+FRONTEND SENDS:
+{"sub_id" : ...}
+@app.route("/subjects", methods = ["DELETE"])
+#stud_id = from jwt
+def del_sub():
+data = request.get_json()
+sub_id = data.get("sub_id")
+
+ #sql query
+ con = name.connect(...)
+ cur = con.cursor()
+ #data gives a full list so
+ 
+ cur.execute("delete from subject where sub_id = %s and sub_id in(select sub_id from studies where stud_id = %s)", (sub_id, stud_id))
+ con.commit()
+ cur.close()
+ con.close()
+ return "subject deleted successfully", 200
+
