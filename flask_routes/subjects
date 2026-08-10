@@ -45,7 +45,7 @@ FRONTEND SENDS:
 {"sub_id" : ..., "mew_sub_name" : }
 @app.route("/subjects", methods = ["PATCH"])
 #stud_id = from jwt
-def add_sub():
+def edit_sub():
 data = request.get_json()
 sub_id = data.get("sub_id")
 new_sub = data.get("new_sub_name")
@@ -55,9 +55,10 @@ new_sub = data.get("new_sub_name")
  cur = con.cursor()
  #data gives a full list so
  
- cur.execute("update sub_name set ") #one element tuple, we use tuples to pass values here
+ cur.execute("update subject set sub_name = %s where sub_id = %s and sub_id in(select sub_id from studies where stud_id = %s)", (new_sub_name, stud_id)) #one element tuple, we use tuples to pass values here
  con.commit()
  cur.close()
  con.close()
  return "subjects added successfully", 200
+
 
