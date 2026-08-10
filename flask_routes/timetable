@@ -1,1 +1,20 @@
-i) get
+i) post
+
+@app.route("/timetable", methods = ["POST"])
+FRONTEND SENDS : 
+{"sub_id" : ..., "day" : ..., "period_no" : ...}
+#stud_id = from jwt
+def set_timetable():
+ data = request.get_json()
+ sub_id = data.get("sub_id")
+ day = data.get("day")
+ period_no = data.get("period_no")
+ #sql query
+ con = name.connect(...)
+ cur = con.cursor()
+ cur.execute(insert into timetable(stud_id, day, period_no, sub_id) select %s, %s, %s, sub_id from studies where stud_id = %s and sub_id = %s) #here we first select the data we want to insert and then do it, it basically means that insert values select from the table where stud_id  is %s and sub_id = %s so like we can fetch the sub_name from the sub_id, sub is already created, the dropdown will show sub from the ones which user had entered
+ con.commit()
+ cur.close()
+ con.close()
+ return "timetable created successfully", 200
+ 
