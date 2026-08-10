@@ -1,4 +1,5 @@
 i) post
+#add case where subjects field is empty ie user hasnt entered the subjects into the application because user entered sub->timetable drop down->timetable
 
 @app.route("/timetable", methods = ["POST"])
 FRONTEND SENDS : 
@@ -18,3 +19,4 @@ def set_timetable():
  con.close()
  return "timetable created successfully", 200
  
+ii) get
