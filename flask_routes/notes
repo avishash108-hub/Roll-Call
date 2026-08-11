@@ -32,4 +32,20 @@ def fetch_sub():
  return jsonify({"note" : note}), 200
 
 iii) patch
+FRONTEND SENDS:
+{"date" : ..., "new_note" : ...}
+@app.route("/subjects", methods = ["PATCH"])
+#stud_id = from jwt
+def edit_note():
+data = request.get_json()
+note_id = data.get("sub_id")
+new_note = data.get("new_sub_name")
 
+ #sql query
+ con = name.connect(...)
+ cur = con.cursor()
+ cur.execute("update notes set new_note where stud_id = %s and date = %s", (stud_id, date)) #one element tuple, we use tuples to pass values here
+ con.commit()
+ cur.close()
+ con.close()
+ return "note edited successfully", 200
