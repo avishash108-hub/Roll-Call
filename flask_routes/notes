@@ -1,5 +1,5 @@
 i) post
-@app.route("/subjects", methods = ["POST"])
+@app.route("/notes", methods = ["POST"])
 FRONTEND SENDS : {"note" : ...}
 #stud_id = from jwt
 def add_notes():
@@ -16,3 +16,20 @@ def add_notes():
 
 
 ii) get
+@app.route("/notes", methods = ["GET"])
+#stud_id = from jwt
+def fetch_sub():
+ 
+ #sql query
+ con = name.connect(...)
+ cur = con.cursor()
+ #data gives a full list so
+ cur.execute("select note from notes where stud_id = %s and date = %s", (stud_id, date))
+ rec = cur.fetchone()
+ note = rec[0]
+ cur.close()
+ con.close()
+ return jsonify({"note" : note}), 200
+
+iii) patch
+
