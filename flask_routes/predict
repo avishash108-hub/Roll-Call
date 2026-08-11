@@ -2,20 +2,43 @@ i) get
 #ml can be integrated in this endpoint
 
 @app.route("/predict", methods = ["GET"])
-FRONTEND SENDS : 
-{"sub_id" : ..., "day" : ..., "period_no" : ...}
-#stud_id = from jwt
-def set_timetable():
+FRONTEND SENDS : {"sub_id" = ...}
+ #stud_id = from jwt
+ def predict():
  data = request.get_json()
- sub_id = data.get("sub_id")
- day = data.get("day")
- period_no = data.get("period_no")
  #sql query
  con = name.connect(...)
  cur = con.cursor()
- cur.execute("insert into timetable(stud_id, day, period_no, sub_id) select %s, %s, %s, sub_id from studies where stud_id = %s and sub_id = %s", (stud_id, day, period_no, sub_id)) #here we first select the data we want to insert and then do it, it basically means that insert values select from the table where stud_id  is %s and sub_id = %s so like we can fetch the sub_name from the sub_id, sub is already created, the dropdown will show sub from the ones which user had entered
+ cur.execute("select count(*) from attendance where stud_id = %s and sub_id = %s and status = "present", (stud_id, sub_id))
+ rec = cur.fetchone() #returns [(17, )] single valued tuple so we use rec[0] to fetch the count, we use fetchone because we expect only single answer to be returned
+ attended_classes = rec[0] 
+ cur.execute("select count(*) from attendance where stud_id = %s and sub_id = %s and status in ("present", "absent")", (stud_id, sub_id))
+ rec1 = cur.fetchone()
+ total_classes = rec1[0] 
  con.commit()
  cur.close()
  con.close()
- return "timetable created successfully", 200
+
+ #business logic
+ try:
+   att_percentage = (attended classes / total_classes) * 100
+ except ZeroDivisionError:
+    return jsonify("error" : "no classes occurred yet")
+ else: 
+    return jsonify("attendance pecentage" : att_percentage)
+
+#for predicting safe leaved
+count = 0
+while(attended_classes / total_classes >= 0.75):
+total_classes++
+count++
+return jsonify{"you can take %s leaves without worrying!" : count - 1}
+
+#for recovery classes
+count = 0
+while(attended_classes / total_classes < 0.75)
+total_classes++
+count++
+attended_classes++
+return jsonify{"take %s classes in order to revive your attendance" : count}
 
