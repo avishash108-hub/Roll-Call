@@ -34,18 +34,43 @@ def fetch_sub():
 iii) patch
 FRONTEND SENDS:
 {"date" : ..., "new_note" : ...}
-@app.route("/subjects", methods = ["PATCH"])
+@app.route("/notes", methods = ["PATCH"])
 #stud_id = from jwt
 def edit_note():
 data = request.get_json()
-note_id = data.get("sub_id")
-new_note = data.get("new_sub_name")
+new_note = data.get("new_note")
 
  #sql query
  con = name.connect(...)
  cur = con.cursor()
- cur.execute("update notes set new_note where stud_id = %s and date = %s", (stud_id, date)) #one element tuple, we use tuples to pass values here
- con.commit()
- cur.close()
- con.close()
- return "note edited successfully", 200
+ cur.execute("update notes set text = %s where stud_id = %s and date = %s", (new_note, stud_id, date)) #one element tuple, we use tuples to pass values here
+ if cur.rowcount == 0
+   con.rollback()
+   cur.close()
+   con.close()
+   return jsonify({"error" : "note not found"}), 404
+
+ con.commit() #do anyways 
+ return "note updated successfully", 200
+
+iv) delete
+FRONTEND SENDS:
+{"date" : ...}
+@app.route("/notes", methods = ["DELETE"])
+#stud_id = from jwt
+def del_note():
+data = request.get_json()
+date = data.get("date")
+
+ #sql query
+ con = name.connect(...)
+ cur = con.cursor() 
+ cur.execute("delete from notes where stud_id = %s and date = %s", (stud_id, date))
+ if cur.rowcount == 0:
+   con.rollback()
+   cur.close()
+   con.close()
+   return jsonify({"error" : "note not found"}), 404
+con.commit()
+return "note deleted successfully", 200
+ 
