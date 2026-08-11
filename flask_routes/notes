@@ -1,1 +1,18 @@
 i) post
+@app.route("/subjects", methods = ["POST"])
+FRONTEND SENDS : {"note" : ...}
+#stud_id = from jwt
+def add_notes():
+ data = request.get_json()
+ note = data.get("note", "")
+ #sql query
+ con = name.connect(...)
+ cur = con.cursor()
+ cur.execute("insert into notes(stud_id, date, note) values(%s, %s, %s)", (stud_id, date, note)) #one element tuple, we use tuples to pass values here
+ con.commit()
+ cur.close()
+ con.close()
+ return "note added successfully", 200
+
+
+ii) get
