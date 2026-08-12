@@ -1,0 +1,505 @@
+Yes 😭 I am maintaining it. I pulled up the running backend revision record. You've actually accumulated **a lot**.
+
+Here’s the current record, grouped so it's usable for revision rather than just being a giant dump.
+
+## 1. HTTP / Networking
+
+You've covered:
+
+* HTTP request/response structure
+* HTTP methods and their semantics
+* GET, POST, PATCH, DELETE
+* HTTP status-code categories: **1xx–5xx**
+* Request/response headers
+* `Content-Type`
+* `Authorization` header
+* JSON and data flow
+* How the frontend/client and backend/server communicate
+* Request → backend processing → database → response flow
+* Inspecting Network requests
+* Authentication vs authorization
+* JWT flow
+* Header security / header misuse and attack considerations
+* Error handling and edge cases
+* Multi-step request flows
+* Advanced request/header manipulation
+
+And you've specifically wanted to go deeper into **what can go wrong with headers and how to validate/protect them**.
+
+---
+
+## 2. Flask / API Design
+
+You've learned and applied:
+
+* Flask route structure
+* `@app.route()`
+* HTTP method mapping
+* `request.get_json()`
+* JSON request bodies
+* `jsonify()`
+* Designing resource-based endpoints
+* Request → validation → SQL → processing → response
+* Choosing GET/POST/PATCH/DELETE based on the operation
+* API request/response contracts
+* Designing what the frontend sends
+* Designing what the backend returns
+* Status codes for success/errors
+* Resource ownership checks
+* Using JWT-derived `stud_id` rather than trusting the client
+
+And importantly: **you've been doing API design**, not merely writing endpoints.
+
+---
+
+# 3. PostgreSQL / Python database interaction
+
+You've learned:
+
+### Connections/cursors
+
+```python
+con = ...
+cur = con.cursor()
+cur.execute(...)
+con.commit()
+cur.close()
+con.close()
+```
+
+And the distinction:
+
+* `con` → connection + transaction management
+* `cur` → executes SQL statements
+
+### Transactions
+
+* `commit()` makes transaction changes permanent
+* `rollback()` discards uncommitted changes
+* `execute()` executes the SQL inside the current transaction
+* `commit()` does **not** execute the SQL
+* `commit/rollback` belong to the connection because the **transaction belongs to the connection**, not the cursor
+
+### Fetching
+
+You've learned:
+
+* `fetchone()`
+* `fetchall()`
+* `COUNT(*)` generally produces one result → `fetchone()` makes sense
+* PostgreSQL returns rows as tuples
+* `fetchall()` gives a list of row-tuples
+* `fetchone()` gives one row tuple or `None`
+* `rec[0]` extracts the first column from a returned row
+* `[row[0] for row in rec]` removes the tuple wrapper when you only selected one column
+
+Example:
+
+```text
+fetchall()
+→ [("DBMS",), ("OS",), ("Maths",)]
+```
+
+becomes:
+
+```python
+["DBMS", "OS", "Maths"]
+```
+
+You also learned **why** `row[0]` is being used rather than just memorizing it.
+
+---
+
+# 4. SQL concepts you've applied
+
+You've worked with:
+
+* `SELECT`
+* `INSERT`
+* `UPDATE`
+* `DELETE`
+* `WHERE`
+* `IN`
+* subqueries
+* `SELECT` inside `INSERT`
+* `JOIN`
+* `COUNT(*)`
+* `AND`
+* `status IN (...)`
+* parameterized SQL using `%s`
+* one-element tuples for query parameters
+* foreign keys
+* intermediate/relationship tables
+* uniqueness constraints
+
+Particularly important reasoning you've learned:
+
+### `Studies` relationship
+
+Your `subject` table doesn't contain `stud_id`.
+
+Instead:
+
+```text
+Student
+   ↓
+Studies
+   ↓
+Subject
+```
+
+Therefore, to verify that a subject belongs to the authenticated student, you sometimes need:
+
+```sql
+WHERE sub_id IN (
+    SELECT sub_id
+    FROM studies
+    WHERE stud_id = %s
+)
+```
+
+You explicitly understood that this is an **ownership check**.
+
+---
+
+# 5. Attendance Tracker database design
+
+Your core entities/relationships include:
+
+```text
+Student
+Subject
+Attendance
+Timetable
+Notes
+Studies
+```
+
+You've worked through:
+
+* Student–Subject relationship through `Studies`
+* Subject–Attendance
+* Timetable–Subject
+* Student-specific attendance
+* Subject identification using `sub_id`
+* Keeping database identifiers separate from what the user sees
+
+### Important frontend/backend insight
+
+The frontend **doesn't display `sub_id` to the user**, but it can receive and temporarily store it.
+
+For example:
+
+```json
+{
+    "sub_id": 7,
+    "sub_name": "DBMS"
+}
+```
+
+The UI displays:
+
+```text
+DBMS
+```
+
+while JavaScript internally retains:
+
+```text
+DBMS → 7
+```
+
+so PATCH/DELETE can later send `sub_id`.
+
+---
+
+# 6. Your current endpoints
+
+### Subjects
+
+```text
+GET
+POST
+PATCH
+DELETE
+```
+
+### Attendance
+
+```text
+GET
+POST
+```
+
+### Timetable
+
+```text
+GET
+POST
+```
+
+### Predict
+
+```text
+GET
+```
+
+### Notes
+
+```text
+GET
+POST
+PATCH
+DELETE
+```
+
+### Still to implement
+
+```text
+/register
+/login
+```
+
+with:
+
+* password hashing
+* password verification
+* JWT generation
+
+Then authentication gets integrated into the existing endpoints.
+
+---
+
+# 7. Timetable design
+
+You've reasoned through:
+
+* frontend sends `sub_id`
+* timetable stores the subject reference using a foreign key
+* dropdown contains the student's own subjects
+* frontend doesn't need to send `sub_name`
+* backend can JOIN timetable + subject to return subject names
+* GET can return period/day/subject information
+* timetable doesn't necessarily need PATCH/DELETE just because CRUD exists
+
+You've also learned `INSERT ... SELECT` as a way of inserting only when a related subject satisfies an ownership condition.
+
+---
+
+# 8. Notes design
+
+Current design:
+
+```text
+notes
+---------
+note_id
+stud_id
+date
+text
+```
+
+Your intended rule:
+
+> **One optional note per student per date.**
+
+Therefore:
+
+```sql
+UNIQUE (stud_id, date)
+```
+
+is appropriate.
+
+You've also reasoned that Notes **shouldn't necessarily reference an Attendance row**, because a note can describe an entire day even when no attendance record exists.
+
+For example:
+
+```text
+Aug 15
+→ "College holiday"
+```
+
+There doesn't have to be an attendance record for that day.
+
+### Notes API identification
+
+You decided that:
+
+```text
+stud_id + date
+```
+
+is enough to identify the note.
+
+So the frontend doesn't inherently need `note_id` for GET/PATCH/DELETE.
+
+---
+
+# 9. Attendance prediction business logic
+
+You've implemented the reasoning for:
+
+### Current attendance
+
+```text
+attended / total × 100
+```
+
+### Safe leaves
+
+Simulation:
+
+```text
+attended stays the same
+total increases by 1
+```
+
+until:
+
+```text
+attended / total < 0.75
+```
+
+### Recovery classes
+
+Simulation:
+
+```text
+attended += 1
+total += 1
+```
+
+until:
+
+```text
+attended / total >= 0.75
+```
+
+You've also understood why we make copies of the original database values rather than destroying them during the simulation.
+
+And you caught the important attendance edge case:
+
+> A timetable says a class was scheduled, but what if the class was actually cancelled?
+
+So you designed attendance counting around actual attendance status rather than blindly assuming every timetable occurrence happened.
+
+---
+
+# 10. Security / authentication — upcoming
+
+You've already learned the concepts and now need to integrate them:
+
+```text
+REGISTER
+password
+ ↓
+hash
+ ↓
+database
+```
+
+and:
+
+```text
+LOGIN
+ ↓
+retrieve hash
+ ↓
+verify password
+ ↓
+JWT
+ ↓
+client
+```
+
+Then:
+
+```text
+JWT
+ ↓
+authenticated stud_id
+ ↓
+protected endpoint
+```
+
+Important principle you've established:
+
+> **`stud_id` should come from the authenticated JWT, not be trusted from the frontend.**
+
+You've also been thinking about:
+
+* authorization
+* resource ownership
+* malicious `sub_id`
+* malformed input
+* missing fields
+* nonexistent resources
+* duplicate records
+* database errors
+* appropriate status codes
+* transaction handling
+
+---
+
+# 11. Frontend/backend data flow
+
+You've now understood the basic architecture:
+
+```text
+Frontend
+   ↓ HTTP + JSON
+Flask API
+   ↓ SQL
+PostgreSQL
+   ↑
+Flask
+   ↑ JSON
+Frontend
+```
+
+And you've started learning what JavaScript will do:
+
+```text
+user action
+ ↓
+JavaScript
+ ↓
+fetch()
+ ↓
+HTTP request
+ ↓
+Flask
+```
+
+You're planning to learn enough:
+
+* JavaScript basics
+* DOM
+* events
+* `fetch()`
+* JSON
+* `async/await`
+* handling API responses
+
+You **do not need Java** for this.
+
+---
+
+## And one meta-concept I'm keeping especially carefully
+
+Your preferred learning style for this project is:
+
+> **You write the code yourself, one small requirement at a time.**
+
+You don't want me to just dump a polished implementation on you.
+
+You want to understand:
+
+**why the code exists → what HTTP is doing → what Flask is doing → what SQL is doing → what PostgreSQL returns → why the Python handles it that way.**
+
+That's why when you made mistakes like `row[0]`, `fetchone()`, `commit()`, `rollback()`, or the prediction loops, we've been unpacking the **intuition**, not just correcting the syntax.
+
+So yes — **the list is being maintained**, and your current project is now basically at:
+
+> **API skeleton complete → local implementation/testing → authentication → security/error-handling pass → frontend.**
