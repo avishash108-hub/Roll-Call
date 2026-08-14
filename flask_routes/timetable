@@ -1,0 +1,45 @@
+i) post
+#add case where subjects field is empty ie user hasnt entered the subjects into the application because user entered sub->timetable drop down->timetable
+
+@app.route("/timetable", methods = ["POST"])
+FRONTEND SENDS : 
+{"sub_id" : ..., "day" : ..., "period_no" : ...}
+#stud_id = from jwt
+def set_timetable():
+ data = request.get_json()
+ sub_id = data.get("sub_id")
+ day = data.get("day")
+ period_no = data.get("period_no")
+ #sql query
+ con = name.connect(...)
+ cur = con.cursor()
+ cur.execute("insert into timetable(stud_id, day, period_no, sub_id) select %s, %s, %s, sub_id from studies where stud_id = %s and sub_id = %s", (stud_id, day, period_no, sub_id)) #here we first select the data we want to insert and then do it, it basically means that insert values select from the table where stud_id  is %s and sub_id = %s so like we can fetch the sub_name from the sub_id, sub is already created, the dropdown will show sub from the ones which user had entered
+ con.commit()
+ cur.close()
+ con.close()
+ return "timetable created successfully", 200
+ 
+ii) get
+# this endpoint should be automatically called by the frontend everytime the dashboard loads
+@app.route("/timetable", methods = ["GET"])
+#stud_id = from jwt
+def fetch_tt():
+ 
+ #sql query
+ con = name.connect(...)
+ cur = con.cursor()
+ #data gives a full list so
+ cur.execute("select timetable.sub_id, subject.sub_name, timetable.day, timetable.period_no from timetable join subjects on timetable.sub_id = subjects.sub_id where stud_id = %s", (stud_id))
+ rec = cur.fetchall()
+ cur.close()
+ con.close()
+ timetable = []
+for sub in rec: #fetchall() sending like [(), ()....] where each tuple represents one row and all is enclosed inside a list
+sub_id = sub[0]
+sub_name = sub[1]
+day = sub[2]
+period_no = sub[3]
+timetable.append({"sub_id" : sub_id, "sub_name" : sub_name, "day" : day, "period_no" = period_no})
+
+return jsonify({"subjects" : subnames}), 200
+

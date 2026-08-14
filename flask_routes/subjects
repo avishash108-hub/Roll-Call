@@ -1,0 +1,84 @@
+i) post
+
+@app.route("/subjects", methods = ["POST"])
+#stud_id = from jwt
+def add_sub():
+ data = request.get_json()
+ subjects = data.get("subject", "")
+ #sql query
+ con = name.connect(...)
+ cur = con.cursor()
+ #data gives a full list so
+ for sub in subjects:
+ cur.execute("insert into subject(sub_name) values(%s)", (sub, )) #one element tuple, we use tuples to pass values here
+ con.commit()
+ cur.close()
+ con.close()
+ return "subjects added successfully", 200
+ 
+ 
+ii) get
+@app.route("/subjects", methods = ["GET"])
+#stud_id = from jwt
+def fetch_sub():
+ 
+ #sql query
+ con = name.connect(...)
+ cur = con.cursor()
+ #data gives a full list so
+ cur.execute("select subject.sub_id, subject.sub_name from subject join studies on subject.sub_id = studies.sub_id where studies.stud_id = %s", (stud_id,)))
+ rec = cur.fetchall()
+ cur.close()
+ con.close()
+subnames = []
+for sub in rec: #fetchall() sending like [(), ()....] where each tuple represents one row and all is enclosed inside a list
+sub_id = sub[0]
+sub_name = sub[1]
+subnames.append({"sub_id" : sub_id, "sub_name" : sub_name})
+
+return jsonify({"subjects" : subnames}), 200
+
+
+
+iii) patch
+FRONTEND SENDS:
+{"sub_id" : ..., "mew_sub_name" : }
+@app.route("/subjects", methods = ["PATCH"])
+#stud_id = from jwt
+def edit_sub():
+data = request.get_json()
+sub_id = data.get("sub_id")
+new_sub = data.get("new_sub_name")
+
+ #sql query
+ con = name.connect(...)
+ cur = con.cursor()
+ #data gives a full list so
+ 
+ cur.execute("update subject set sub_name = %s where sub_id = %s and sub_id in(select sub_id from studies where stud_id = %s)", (new_sub_name, stud_id)) #one element tuple, we use tuples to pass values here
+ con.commit()
+ cur.close()
+ con.close()
+ return "subjects added successfully", 200
+
+
+iv) delete
+FRONTEND SENDS:
+{"sub_id" : ...}
+@app.route("/subjects", methods = ["DELETE"])
+#stud_id = from jwt
+def del_sub():
+data = request.get_json()
+sub_id = data.get("sub_id")
+
+ #sql query
+ con = name.connect(...)
+ cur = con.cursor()
+ #data gives a full list so
+ 
+ cur.execute("delete from subject where sub_id = %s and sub_id in(select sub_id from studies where stud_id = %s)", (sub_id, stud_id))
+ con.commit()
+ cur.close()
+ con.close()
+ return "subject deleted successfully", 200
+

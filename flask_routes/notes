@@ -1,0 +1,76 @@
+i) post
+@app.route("/notes", methods = ["POST"])
+FRONTEND SENDS : {"note" : ...}
+#stud_id = from jwt
+def add_notes():
+ data = request.get_json()
+ note = data.get("note", "")
+ #sql query
+ con = name.connect(...)
+ cur = con.cursor()
+ cur.execute("insert into notes(stud_id, date, note) values(%s, %s, %s)", (stud_id, date, note)) #one element tuple, we use tuples to pass values here
+ con.commit()
+ cur.close()
+ con.close()
+ return "note added successfully", 200
+
+
+ii) get
+@app.route("/notes", methods = ["GET"])
+#stud_id = from jwt
+def fetch_sub():
+ 
+ #sql query
+ con = name.connect(...)
+ cur = con.cursor()
+ #data gives a full list so
+ cur.execute("select note from notes where stud_id = %s and date = %s", (stud_id, date))
+ rec = cur.fetchone()
+ note = rec[0]
+ cur.close()
+ con.close()
+ return jsonify({"note" : note}), 200
+
+iii) patch
+FRONTEND SENDS:
+{"date" : ..., "new_note" : ...}
+@app.route("/notes", methods = ["PATCH"])
+#stud_id = from jwt
+def edit_note():
+data = request.get_json()
+new_note = data.get("new_note")
+
+ #sql query
+ con = name.connect(...)
+ cur = con.cursor()
+ cur.execute("update notes set text = %s where stud_id = %s and date = %s", (new_note, stud_id, date)) #one element tuple, we use tuples to pass values here
+ if cur.rowcount == 0
+   con.rollback()
+   cur.close()
+   con.close()
+   return jsonify({"error" : "note not found"}), 404
+
+ con.commit() #do anyways 
+ return "note updated successfully", 200
+
+iv) delete
+FRONTEND SENDS:
+{"date" : ...}
+@app.route("/notes", methods = ["DELETE"])
+#stud_id = from jwt
+def del_note():
+data = request.get_json()
+date = data.get("date")
+
+ #sql query
+ con = name.connect(...)
+ cur = con.cursor() 
+ cur.execute("delete from notes where stud_id = %s and date = %s", (stud_id, date))
+ if cur.rowcount == 0:
+   con.rollback()
+   cur.close()
+   con.close()
+   return jsonify({"error" : "note not found"}), 404
+con.commit()
+return "note deleted successfully", 200
+ 

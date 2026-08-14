@@ -1,0 +1,40 @@
+To stand out and avoid sounding like a generic student project, name the app based on **what it does for the user** (predicting eligibility, optimizing schedules, managing risk) or the **underlying system capability** (analytics engine, proactive compliance), rather than just calling it a "tracker."
+
+Here are several strong naming concepts categorized by the angle you want to emphasize:
+
+### 1. Analytics & Prediction Focused
+
+*Names that highlight the forward-looking, forecasting nature of the app.*
+
+* **AttendIQ** / **AttendX** — Modern, tech-focused, and implies built-in intelligence.
+* **ForeSight** / **AttendanceForeSight** — Emphasizes predicting future attendance outcomes before it's too late.
+* **Margin** — Refers to calculating the safe "margin" of classes a user can miss without dropping below thresholds.
+* **Prophet / AttendProphet** — Highlights the prediction/projection engine.
+
+### 2. Risk & Compliance Focused
+
+*Names that sound like proactive, safeguard systems.*
+
+* **SafeZone** — Signals that the app keeps student attendance comfortably above eligibility criteria.
+* **Threshold** — Directly references the mathematical logic (e.g., maintaining 75% eligibility).
+* **Buffer** — Focuses on calculating the safety buffer for students.
+* **AttendShield** — Frames the tool as protection against short-attendance penalties or hall-ticket holds.
+
+### 3. Engine & System Focused
+
+*Names that emphasize backend architecture, APIs, and algorithmic logic for resumes/GitHub.*
+
+* **Prism Attendance Engine** — Sounds like a complete backend platform rather than a simple frontend script.
+* **TrackPulse** — Suggests real-time dynamic tracking and health metrics for coursework.
+* **Cadence** — Refers to the rhythmic schedule/timetable analysis aspect of the system.
+
+---
+
+### Pro Tip for GitHub & Your Resume
+
+When naming the project on your resume or GitHub repository, pair the product name with a solid tagline so recruiters immediately see the backend complexity:
+
+* **Repo/Project Title:** `ForeSight — Predictive Attendance & Eligibility Engine`
+* **Resume Headline:** *Predictive Attendance Analytics API built with Flask, JWT Authentication, and Schedule Forecasting Algorithms.*
+
+How do these sound to you, or is there a specific vibe (minimalist, enterprise, or startup-style) you want to lean into?
