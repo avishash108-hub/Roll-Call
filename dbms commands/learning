@@ -503,3 +503,10 @@ That's why when you made mistakes like `row[0]`, `fetchone()`, `commit()`, `roll
 So yes — **the list is being maintained**, and your current project is now basically at:
 
 > **API skeleton complete → local implementation/testing → authentication → security/error-handling pass → frontend.**
+
+
+
+
+to start the default numbering from 2 instead of 1:
+ALTER TABLE student
+ALTER COLUMN stud_id RESTART WITH 1;
