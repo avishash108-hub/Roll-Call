@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Roll Call - Register</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#DDE5E0;--ink:#2B3633;--mut:#586561;--card:#F8F6F2;--sky:#B3CBCD;--sage:#A9C7B2;--sage2:#5E8F72;--butter:#EBD58E;--blush:#E3A9B4;--rose:#C0617A;--line:#C3CFC8;--sh:0 6px 16px rgba(43,54,51,.2);--r:14px;--doodle:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220' fill='none' stroke='%232B3633' stroke-opacity='.15' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><path d='M30 18l4 10 11 1-8 7 3 11-10-6-10 6 3-11-8-7 11-1z'/><path d='M120 46c-14-9-18-16-12-22 5-5 11-2 12 3 1-5 7-8 12-3 6 6 2 13-12 22z'/><circle cx='176' cy='56' r='4'/><path d='M180 56V28l14-4v26'/><circle cx='190' cy='50' r='4'/><path d='M26 104q10-6 20 0 10-6 20 0v28q-10-6-20 0-10-6-20 0zM46 104v28'/><path d='M132 138l22-22 6 6-22 22-8 2zM154 116l4-4 6 6-4 4'/><circle cx='44' cy='190' r='13'/><path d='M44 190v-8M44 190l6 3'/><path d='M96 188q8-12 16 0t16 0 16 0'/><path d='M170 186q-8 0-6-8 3-7 10-4 4-8 12-3 5 4 3 9 6 1 4 6-2 4-7 4z'/><path d='M96 92l7 8 14-16'/><path d='M200 104v10M195 109h10'/><path d='M78 40q4-6 8 0t8 0'/></svg>")}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 'DM Sans',system-ui,sans-serif}
+h1,h2{font-family:Fraunces,Georgia,serif;margin:.2em 0 .4em;line-height:1.1}h1{font-size:clamp(2rem,4vw,2.9rem)}h2{font-size:1.6rem}
+.mut{color:var(--mut)}
+.wrap{min-height:100vh;display:grid;grid-template-columns:minmax(280px,5fr) 6fr}
+/* left: soft sage panel, small blush accents only */
+.side{background:var(--sage) var(--doodle);background-size:300px;padding:clamp(1.5em,5vw,4em);display:flex;flex-direction:column;justify-content:center;gap:1.4em;border-right:3px dotted var(--sage2)}
+.side .tag{display:inline-block;background:var(--card);border-left:5px solid var(--blush);border-radius:10px;padding:.5em .9em;box-shadow:var(--sh);font-weight:500;width:fit-content}
+.side .tag:nth-of-type(even){margin-left:1.5em}
+/* hidden ship: small line-art ship in the same stroke style as the doodles */
+.side{position:relative;overflow:hidden;padding-bottom:150px}
+.sea{position:absolute;left:0;right:0;bottom:0;height:120px;pointer-events:none}
+.sea svg.waves{position:absolute;left:0;bottom:0;width:100%;height:46px}
+.ship{position:absolute;left:14%;bottom:26px;width:112px;pointer-events:auto;cursor:pointer;background:none;border:0;padding:0}
+.ship svg{width:100%;display:block;animation:bob 5s ease-in-out infinite}
+.ship.sail{animation:sail 7s ease-in forwards}.ship.back{animation:back 3s ease-out forwards}
+.ship .no{display:none}
+@keyframes bob{50%{transform:translateY(-5px) rotate(-1.5deg)}}
+@keyframes sail{to{transform:translateX(620%)}}@keyframes back{from{transform:translateX(-320%)}to{transform:none}}
+.sea-msg{position:absolute;left:1.5em;bottom:120px;background:var(--card);border-left:5px solid var(--blush);border-radius:10px;padding:.4em .8em;box-shadow:var(--sh);font-weight:500;opacity:0;transition:opacity .6s;pointer-events:none}
+.sea-msg.on{opacity:1}
+/* right: form on doodle background */
+.main{background:var(--bg) var(--doodle);background-size:220px;display:grid;place-items:center;padding:1.5em}
+form{width:min(440px,100%);background:var(--card);border-radius:20px;box-shadow:var(--sh);padding:2em 1.8em;border-top:6px solid var(--sky)}
+label{display:block;font-weight:500;margin:.8em 0}
+input{font:inherit;color:inherit;width:100%;margin-top:.25em;background:var(--card);border:1.5px solid var(--line);border-radius:10px;padding:.6em .75em}
+input:focus,button:focus-visible,a:focus-visible{outline:2px solid var(--sage2);outline-offset:2px}
+.btn{width:100%;margin-top:.6em;background:var(--sage2);color:#fff;border:0;border-radius:12px;padding:.7em 1.3em;font:700 .95rem 'DM Sans',sans-serif;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 4px 0 #44705A;transition:transform .15s}
+.btn:hover{transform:translateY(-1px)}.btn:active{transform:translateY(3px);box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 1px 0 #44705A}.btn:disabled{opacity:.6;cursor:wait}
+.msg{min-height:1.4em;font-size:.92rem;margin:.4em 0}.msg.err{color:#8F2D42}.msg.ok{color:#2F6B47;font-weight:500}
+.foot{text-align:center;margin:1em 0 0}.foot a{color:var(--ink);font-weight:700}
+@media(max-width:800px){.sea{display:none}.side{padding-bottom:1.6em}.wrap{grid-template-columns:1fr}.side{border-right:0;border-bottom:3px dotted var(--sage2);padding:1.6em;gap:.8em}.side .tag{display:none}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}.ship svg,.ship.sail,.ship.back{animation:none!important}}
+</style></head><body>
+<div class="wrap">
+  <section class="side">
+    <h1>Join the roll call.</h1>
+    <p>Set up your account once, then keep an eye on your attendance without pretending you will definitely go to that 8 am.</p>
+    <span class="tag">Mark attendance daily</span><span class="tag">Keep notes</span><span class="tag">Know your safe leaves</span>
+  <div class="sea" aria-hidden="false">
+      <span class="sea-msg" id="seamsg">Eight bells. Land ahead, captain.</span>
+      <svg class="waves" viewBox="0 0 600 46" preserveAspectRatio="none" fill="none" stroke="#2B3633" stroke-opacity=".28" stroke-width="2" stroke-linecap="round"><path d="M0 18q25-14 50 0t50 0 50 0 50 0 50 0 50 0 50 0 50 0 50 0 50 0 50 0 50 0"/><path d="M0 34q25-12 50 0t50 0 50 0 50 0 50 0 50 0 50 0 50 0 50 0 50 0 50 0 50 0" stroke-opacity=".18"/></svg>
+      <button class="ship" id="ship" type="button" aria-label="A small ship on the waves">
+        <svg viewBox="0 0 120 90" fill="none" stroke="#2B3633" stroke-opacity=".6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 58h92l-14 20H28z" fill="#F8F6F2" fill-opacity=".7"/><path d="M60 58V10"/><path d="M60 14c22 6 30 20 30 38H60z" fill="#F8F6F2" fill-opacity=".7"/><path d="M56 20c-16 6-22 18-22 32h22z" fill="#F8F6F2" fill-opacity=".7"/><path d="M60 10l14 4-14 4" stroke="#C0617A" stroke-opacity=".9"/>
+          <g stroke-width="1.5"><circle cx="34" cy="67" r="1.7"/><circle cx="41.4" cy="67" r="1.7"/><circle cx="48.8" cy="67" r="1.7"/><circle cx="56.2" cy="67" r="1.7"/><circle cx="63.6" cy="67" r="1.7"/><circle cx="71" cy="67" r="1.7"/><circle cx="78.4" cy="67" r="1.7"/><circle cx="85.8" cy="67" r="1.7"/></g>
+        </svg>
+      </button>
+    </div>
+  </section>
+  <section class="main">
+    <form id="rf" novalidate>
+      <h2>Create account</h2><p class="mut">Takes a minute. Promise.</p>
+      <div id="fields"></div>
+      <div class="msg" id="msg" role="status"></div>
+      <button class="btn" id="go">Register</button>
+      <p class="foot">Already have an account? <a href="index.html">Log in</a></p>
+    </form>
+  </section>
+</div>
+<script>
+/* ---------- EDIT THESE TWO THINGS TO MATCH YOUR BACKEND ---------- */
+const API='http://localhost:5000';
+const REGISTER_PATH='/register';          // placeholder: not in the API docs you sent
+const FIELDS=[                            // placeholders: key must equal the field name your route reads
+  {key:'name',    label:'Full name', type:'text',     auto:'name'},
+  {key:'email',   label:'Email',     type:'email',    auto:'email'},
+  {key:'password',label:'Password',  type:'password', auto:'new-password'},
+  {key:'roll_no', label:'Roll number', type:'text'},
+  {key:'branch',  label:'Branch',    type:'text'},
+];
+/* ------------------------------------------------------------------ */
+const $=s=>document.querySelector(s);
+const hasPw=FIELDS.some(f=>f.key==='password');
+$('#fields').innerHTML=FIELDS.map(f=>`<label>${f.label}<input name="${f.key}" type="${f.type}" autocomplete="${f.auto||'off'}" required></label>`).join('')
+  +(hasPw?'<label>Confirm password<input name="confirm" type="password" autocomplete="new-password" required></label>':'');
+const say=(t,c)=>{const m=$('#msg');m.textContent=t;m.className='msg '+(c||'')};
+$('#rf').onsubmit=async e=>{
+  e.preventDefault();say('');
+  const f=new FormData(e.target),body={};
+  for(const x of FIELDS)body[x.key]=(f.get(x.key)||'').trim();
+  if(FIELDS.some(x=>!body[x.key]))return say('Please fill in every field.','err');
+  if(hasPw&&f.get('confirm')!==f.get('password'))return say('The two passwords do not match.','err');  // checked here only, never sent
+  $('#go').disabled=true;
+  try{
+    const r=await fetch(API+REGISTER_PATH,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const t=await r.text();let d;try{d=JSON.parse(t)}catch{d=t}
+    if(!r.ok)throw new Error((d&&d.error)||(typeof d==='string'&&d)||'Registration failed');
+    say('Account created. Taking you to login...','ok');setTimeout(()=>location.href='index.html',1400);
+  }catch(x){say(x.message==='Failed to fetch'?'Cannot reach the server. Is Flask running with CORS on?':x.message,'err');$('#go').disabled=false}
+};
+/* hidden ship: click it and it sails off, then comes back */
+// Messages the ship shows: a random one each click (never the same twice in a row). Add your own lines here.
+const SHIP_MSGS=['Eight bells. Land ahead, captain.','One Ring to All.','Eight on deck, nobody overboard.','Treasure found: a free period.','Smooth sailing, as long as you stay above 75%.','Pirate King energy. Attendance still counts.'];
+let last=-1;
+const ship=$('#ship'),sm=$('#seamsg');
+ship.onclick=()=>{if(ship.classList.contains('sail'))return;ship.classList.remove('back');ship.classList.add('sail');let i;do{i=Math.floor(Math.random()*SHIP_MSGS.length)}while(i===last&&SHIP_MSGS.length>1);last=i;sm.textContent=SHIP_MSGS[i];sm.classList.add('on');setTimeout(()=>sm.classList.remove('on'),3500)};
+ship.onanimationend=e=>{if(e.target!==ship)return;if(ship.classList.contains('sail')){ship.classList.remove('sail');ship.classList.add('back')}else ship.classList.remove('back')};
+</script></body></html>
