@@ -1,0 +1,689 @@
+from os import name
+from re import sub
+from argon2 import PasswordHasher
+from flask import Flask, jsonify, request
+import requests
+import psycopg
+from datetime import datetime, timedelta, timezone
+import jwt
+from jwt.exceptions import InvalidTokenError
+import os
+import uuid
+from functools import wraps
+from flask_cors import CORS
+app = Flask(__name__)
+CORS(app)
+@app.route('/')
+def home():
+    return "my flask is running"
+
+secret = os.environ.get("JWT_SECRET")
+ph = PasswordHasher(time_cost = 3, memory_cost = 65536, parallelism = 4)
+@app.route('/register', methods = ["POST"])
+def register():
+  data = request.get_json()
+  field = ["email", "password"]
+  for i in field:
+    if not data.get(i):
+      return jsonify({"error" : "missing field"}), 400
+  email = data.get("email")  
+  username = data.get("username", "")
+  password = data.get("password")
+  branch =  data.get("branch", "")
+  section = data.get("section", "")
+  #hashing the pwd
+  if(
+     len(password) < 10 or len(password) > 128
+     or not any(c.isalpha() for c in password)
+     or not any(c.isdigit() for c in password)
+  ):
+    return jsonify({
+      "error" : "password must have minimum 10 and maximum 128 characters, and must contain atleast one character and a number"
+      }), 400
+ 
+  pwd_hash = ph.hash(password)
+  #store in db
+  con = psycopg.connect(
+        dbname = "att",
+        user = "postgres",
+        password = "avi",
+        host = "localhost",
+        port = "5432"
+      )
+  cur = con.cursor()
+  cur.execute('''
+  insert into student(
+  username,
+  email, 
+  pwd_hash,
+  branch, 
+  section
+  )
+  values(%s, %s, %s, %s, %s)''',
+  (username, email, pwd_hash, branch, section)
+  )
+  con.commit()
+  con.close()
+  cur.close()
+  return "user registered successfully", 200
+
+@app.route('/login', methods = ["POST"])
+def login():
+  data = request.get_json()
+  email = data.get("email")
+  pwd = data.get("password")
+  if not email or not pwd:
+        return jsonify({"error": "Invalid email or password"}), 401
+  con = psycopg.connect(
+          dbname = "att",
+          user = "postgres",
+          password = "avi",
+          host = "localhost",
+          port = "5432"
+        )
+  cur = con.cursor()
+  cur.execute("select stud_id, pwd_hash from student where email = %s", (email,))
+  stud = cur.fetchone()
+  if stud is None:
+        cur.close()
+        con.close()
+        return jsonify({"error": "Invalid email or password"}), 401
+  id, pwd_hash = stud
+  try:
+    ph.verify(pwd_hash, pwd)
+  except Exception:
+        cur.close()
+        con.close()
+        return jsonify({"error": "Invalid email or password"}), 401
+
+  cur.close()
+  con.close()
+  now = datetime.now(timezone.utc)
+  print("SECRET:", secret)
+  print("SECRET TYPE:", type(secret))
+  access_token = jwt.encode(
+    {
+      "stud_id" : id,
+      "type" : "access",
+      "exp" : now + timedelta(hours = 3)
+    },
+    secret,
+    algorithm = 'HS256'
+
+  )
+
+  refresh_jti = str(uuid.uuid4())
+  refresh_exp = now + timedelta(days=7)
+  refresh_token = jwt.encode(
+        {
+            "stud_id": id,
+            "type": "refresh",
+            "jti": refresh_jti,
+            "exp": refresh_exp
+        },
+        secret,
+        algorithm="HS256"
+    )
+  con = psycopg.connect(
+            dbname = "att",
+            user = "postgres",
+            password = "avi",
+            host = "localhost",
+            port = "5432"
+          )
+  cur = con.cursor()
+  cur.execute("""
+    INSERT INTO refresh(jti, stud_id, expires_at)
+    VALUES (%s, %s, %s)""",
+    (refresh_jti, id, refresh_exp)
+    )
+  con.commit()
+  cur.close()
+  con.close()
+  
+  return jsonify({
+        "access_token": access_token,
+        "refresh_token": refresh_token
+    }), 200
+
+def token_req(function):
+  @wraps(function)
+  def func_wrapper(*args, **kwargs):
+        auth_header = request.headers.get("Authorization")
+        if not auth_header:
+            return jsonify({"error" : "unauthorized user"}), 401
+
+        if not auth_header.startswith("Bearer "):
+            return jsonify({"error" : "invalid authorization header"}), 401
+
+        b_token = auth_header.split(" ", 1)[1]
+        try:
+            payload = jwt.decode(b_token, secret, algorithms = ["HS256"])
+
+        except InvalidTokenError:
+            return jsonify({"error" : "invalid or expired token"}), 401
+        p_type = payload.get("type")
+        if not p_type == "access":
+            return jsonify({"error" : "invalid token"}), 401
+        id = payload["stud_id"]
+        return function(id, *args, **kwargs)
+  return func_wrapper
+  
+  
+@app.route("/subjects", methods = ["GET"])
+@token_req
+def fetch_sub(id):
+   
+ #sql query
+   con = psycopg.connect(
+      dbname = "att",
+      user = "postgres",
+      password = "avi",
+      host = "localhost",
+      port = "5432"
+    )
+   cur = con.cursor()
+ #data gives a full list so
+   cur.execute('''
+   select subject.sub_id, subject.sub_name 
+   from subject join studies on subject.sub_id = studies.sub_id 
+   where studies.stud_id = %s''', 
+   (id,)
+   )
+   rec = cur.fetchall()
+   cur.close()
+   con.close()
+   subnames = []
+   for sub in rec: #fetchall() sending like [(), ()....] where each tuple represents one row and all is enclosed inside a list
+     sub_id = sub[0]
+     sub_name = sub[1]
+     subnames.append(
+      {
+         "sub_id" : sub_id,
+         "sub_name" : sub_name
+      }
+    ) 
+
+   return jsonify({"subjects" : subnames}), 200
+
+
+
+@app.route("/subjects", methods = ["POST"])
+@token_req
+def add_sub(id):
+  data = request.get_json()
+  subjects = data.get("subject", [])
+  sub_name = data.get("sub_name", [])
+  #sql query
+  con = psycopg.connect(
+      dbname = "att",
+      user = "postgres",
+      password = "avi",
+      host = "localhost",
+      port = "5432"
+    )
+  cur = con.cursor()
+  #data gives a full list so
+  for sub in subjects:
+    cur.execute('''
+        insert into subject(sub_name)
+        values(%s)
+        returning sub_id''', 
+        (sub,)
+      ) #one element tuple, we use tuples to pass values here
+    sub_id = cur.fetchone()[0]
+    cur.execute("""
+      insert into studies (stud_id, sub_id, subject_name)
+      values (%s, %s, %s)
+      """, 
+      (id, sub_id, sub_name))
+  
+  con.commit()
+  cur.close()
+  con.close()
+  return "subjects added successfully", 200
+
+
+ 
+@app.route("/subjects", methods = ["PATCH"])
+@token_req
+def edit_sub(id):
+  stud_id = 1
+  data = request.get_json()
+  sub_id = data.get("sub_id")
+  new_sub_name = data.get("new_sub_name")
+
+ #sql query
+  con = psycopg.connect(
+        dbname = "att",
+        user = "postgres",
+        password = "avi",
+        host = "localhost",
+        port = "5432"
+      )
+  cur = con.cursor()
+  #data gives a full list so
+ 
+  cur.execute('''
+  UPDATE studies
+  SET subject_name = %s
+  WHERE sub_id = %s
+  AND stud_id = %s;''',
+  (new_sub_name, sub_id, id)
+  ) #one element tuple, we use tuples to pass values here
+  con.commit()
+  cur.close()
+  con.close()
+  return "subject updated successfully", 200
+
+@app.route("/subjects", methods = ["DELETE"])
+@token_req
+def del_sub(id):
+   
+   data = request.get_json()
+   sub_id = data.get("sub_id")
+
+   #sql query
+   con = psycopg.connect(
+      dbname = "att",
+      user = "postgres",
+      password = "avi",
+      host = "localhost",
+      port = "5432"
+   )
+   cur = con.cursor()
+   #data gives a full list so
+   cur.execute('''
+   delete from studies
+   where sub_id = %s 
+   and stud_id = %s''',
+   (sub_id, id)
+   )
+   con.commit()
+   cur.close()
+   con.close()
+   return "subject deleted successfully", 200
+
+
+@app.route("/attendance", methods = ["POST"])
+@token_req
+def add_att(id):
+
+  data = request.get_json()
+  sub_id = data.get("sub_id", "")
+  date = data.get("date", "")
+  status = data.get("status", "")
+  period_no = data.get("period_no", "")
+
+#postgres
+  con = psycopg.connect(
+      dbname = "att",
+      user = "postgres",
+      password = "avi",
+      host = "localhost",
+      port = "5432"
+    )
+  cur = con.cursor()
+  cur.execute('''
+  insert into attendance
+  (
+   stud_id,
+   sub_id, 
+   date,
+   status,
+   period_no
+  ) 
+  values(%s, %s, %s, %s, %s)''', 
+  (id, sub_id, date, status, period_no)
+  ) #one element tuple, we use tuples to pass values here
+  con.commit()
+  cur.close()
+  con.close()
+  return "attendance updated successfully", 200
+
+
+@app.route("/attendance", methods = ["GET"])
+@token_req
+def fetch_att(id):
+   
+   data = request.get_json()
+   date = data.get("date", "")
+   #sql query
+   con = psycopg.connect(
+      dbname = "att",
+      user = "postgres",
+      password = "avi",
+      host = "localhost",
+      port = "5432"
+   )
+   print("id", id)
+   print("date", date)
+   cur = con.cursor()
+   cur.execute('''
+   select attendance.date, 
+   subject.sub_name,
+   attendance.status, attendance.period_no
+   from attendance 
+   join subject on
+   attendance.sub_id = subject.sub_id 
+   where attendance.date = %s 
+   and attendance.stud_id = %s''',
+   (date, id)
+  )
+ #fetching recs
+   records = cur.fetchall()
+   cur.close()
+   con.close()
+   #building json
+   att = []
+   for row in records:
+      att.append(
+        {
+           "date" : row[0],
+           "subject" : row[1],
+           "status" : row[2],
+           "period" : row[3],
+
+       }
+   )
+   return jsonify({"attendance" : att}), 200
+
+
+@app.route("/notes", methods = ["POST"])
+@token_req
+def add_notes(id):
+ stud_id = 1
+ data = request.get_json()
+ text = data.get("text", "")
+ date = data.get("date", "")
+
+ #sql query
+ con = psycopg.connect(
+      dbname = "att",
+      user = "postgres",
+      password = "avi",
+      host = "localhost",
+      port = "5432"
+    )
+ cur = con.cursor()
+ cur.execute('''
+  insert into notes(
+   stud_id,
+   date,
+   text
+  ) 
+  values(%s, %s, %s)''', 
+  (id, date, text)
+) #one element tuple, we use tuples to pass values here
+ con.commit()
+ cur.close()
+ con.close()
+ return "note added successfully", 200
+
+@app.route("/notes", methods = ["GET"])
+@token_req
+def fetch_notes(id):
+ 
+ date = request.args.get("date")
+ #sql query
+ con = psycopg.connect(
+      dbname = "att",
+      user = "postgres",
+      password = "avi",
+      host = "localhost",
+      port = "5432"
+    )
+ cur = con.cursor()
+
+ #data gives a full list so
+ cur.execute('''
+ select text
+ from notes 
+ where stud_id = %s 
+ and date = %s''', 
+ (id, date)
+ )
+ rec = cur.fetchone()
+ if rec is None:
+  cur.close()
+  con.close()
+  return jsonify({"error" : "note not found"}), 404
+ text = rec[0]
+ cur.close()
+ con.close()
+ return jsonify({"text" : text}), 200
+
+
+
+@app.route("/notes", methods = ["PATCH"])
+@token_req
+def edit_note(id):
+  
+  data = request.get_json()
+  date = data.get("date", "")
+  new_note = data.get("new_note")
+
+ #sql query
+  con = psycopg.connect(
+      dbname = "att",
+      user = "postgres",
+      password = "avi",
+      host = "localhost",
+      port = "5432"
+    )
+  cur = con.cursor()
+  cur.execute('''
+  update notes 
+  set text = %s 
+  where stud_id = %s 
+  and date = %s''',
+  (new_note, id, date)
+  ) #one element tuple, we use tuples to pass values here
+  if cur.rowcount == 0:
+   con.rollback()
+   cur.close()
+   con.close()
+   return jsonify({"error" : "note not found"}), 404
+
+  con.commit()
+  cur.close()
+  con.close() 
+  return "note updated successfully", 200
+  
+
+@app.route("/notes", methods = ["DELETE"])
+@token_req
+def del_note(id):
+  
+  data = request.get_json()
+  date = data.get("date")
+
+  #sql query
+  con = psycopg.connect(
+      dbname = "att",
+      user = "postgres",
+      password = "avi",
+      host = "localhost",
+      port = "5432"
+    )
+  cur = con.cursor() 
+  cur.execute('''
+  delete from notes
+  where stud_id = %s
+  and date = %s''',
+  (id, date)
+  )
+  if cur.rowcount == 0:
+   con.rollback()
+   cur.close()
+   con.close()
+   return jsonify({"error" : "note not found"}), 404
+  con.commit()
+  cur.close()
+  con.close()
+  return "note deleted successfully", 200
+
+
+@app.route("/timetable", methods = ["POST"])
+@token_req
+def set_timetable(id):
+ data = request.get_json()
+ sub_id = data.get("sub_id")
+ day = data.get("day")
+ period_no = data.get("period_no")
+ #sql query
+ con = psycopg.connect(
+      dbname = "att",
+      user = "postgres",
+      password = "avi",
+      host = "localhost",
+      port = "5432"
+    )
+ cur = con.cursor()
+ cur.execute('''
+  insert into timetable(stud_id, day, period_no, sub_id) 
+  select %s, %s, %s, sub_id
+  from studies 
+  where stud_id = %s and sub_id = %s''', 
+  (id, day, period_no, id, sub_id)
+  )
+
+ if cur.rowcount == 0:
+    con.rollback()
+    cur.close()
+    con.close()
+    return jsonify({
+        "error": "Please add this subject first, then try again"
+    }), 404
+ con.commit()
+ cur.close()
+ con.close()
+ return "timetable created successfully", 200
+
+
+@app.route("/timetable", methods = ["GET"])
+@token_req
+def fetch_tt(id):
+ #sql query
+ con = psycopg.connect(
+      dbname = "att",
+      user = "postgres",
+      password = "avi",
+      host = "localhost",
+      port = "5432"
+    )
+ cur = con.cursor()
+ #data gives a full list so
+ cur.execute('''
+   select timetable.sub_id,
+   subject.sub_name,
+   timetable.day,
+   timetable.period_no
+   from timetable
+   join subject 
+   on timetable.sub_id = subject.sub_id
+   where stud_id = %s''', 
+   (id,)
+  )
+ if cur.rowcount == 0:
+    con.rollback()
+    cur.close()
+    con.close()
+    return jsonify({"error": "subject not found for this student"}), 404
+ rec = cur.fetchall()
+ cur.close()
+ con.close()
+ timetable = []
+ for sub in rec: #fetchall() sending like [(), ()....] where each tuple represents one row and all is enclosed inside a list
+   sub_id = sub[0]
+   sub_name = sub[1]
+   day = sub[2]
+   period_no = sub[3]
+   timetable.append(
+     {
+       "sub_id" : sub_id,
+        "sub_name" : sub_name,
+        "day" : day,
+        "period_no" : period_no
+      }
+   )
+
+ return jsonify({"subjects" : timetable}), 200
+
+
+@app.route("/predict", methods = ["GET"])
+@token_req
+#FRONTEND SENDS : {"sub_id" = ...}
+def predict(id):
+ sub_id = request.args.get('sub_id') #in query params
+ #sql query
+ con = psycopg.connect(
+      dbname = "att",
+      user = "postgres",
+      password = "avi",
+      host = "localhost",
+      port = "5432"
+  )
+ cur = con.cursor()
+ cur.execute('''
+ select count(*)
+ from attendance 
+ where stud_id = %s
+ and sub_id = %s 
+ and status = 'present' 
+ ''', 
+ (id, sub_id)
+ )
+ rec = cur.fetchone() #returns [(17, )] single valued tuple so we use rec[0] to fetch the count, we use fetchone because we expect only single answer to be returned
+ attended_classes = rec[0] 
+ cur.execute('''
+ select count(*)
+ from attendance 
+ where stud_id = %s
+ and sub_id = %s 
+ and status in 
+ ('present', 'absent')''', 
+ (id, sub_id)
+ )
+ rec1 = cur.fetchone()
+ total_classes = rec1[0] 
+ con.commit()
+ cur.close()
+ con.close()
+
+ #business logic
+ try:
+   att_percentage = (attended_classes / total_classes) * 100
+ except ZeroDivisionError:
+    return jsonify({"error" : "no classes occurred yet"}), 200
+ 
+
+#for predicting safe leaved
+ safe_count = 0
+ total = total_classes #dont destroy original variables
+ while(attended_classes / (total + 1) >= 0.75): #total is the hypothetical variable, it checks that if i dont attend one more class ie total still increases by 1 so total + 1 and attended_classes remain same as the db, so will att >= 0.75?
+   total += 1
+   safe_count += 1
+
+#for recovery classes
+ recovery_count = 0
+ total = total_classes
+ att = attended_classes
+ while(att / total < 0.75):
+   total_classes += 1
+   recovery_count += 1
+   att += 1
+
+
+ return jsonify({
+ "attendance percentage : " : att_percentage,
+ "safe leaves : " : safe_count,
+ "recovery classes : "  : recovery_count
+}), 200
+
+
+
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
