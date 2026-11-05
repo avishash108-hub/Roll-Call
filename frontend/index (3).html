@@ -67,8 +67,9 @@ table{border-collapse:separate;border-spacing:6px;width:100%}th{font-family:Frau
 <div id="egg" hidden><div class="card"><h2 id="eh"></h2><p id="et"></p><button class="btn" onclick="this.closest('#egg').hidden=true">Close</button></div></div>
 
 <script>
+  
 /* ---------- config ---------- */
-const API='http://localhost:5000';                 // Flask base URL
+const API='https://roll-call-3p98.onrender.com';                 // Flask base URL
 const DAYS=['Monday','Tuesday','Wednesday','Thursday','Friday'], PERIODS=8; // timetable grid size
 const PREVIEW=location.search.includes('preview')||localStorage.preview==='1'; // ?preview shows the UI with fake data, no backend
 /* ---------- hidden bits ---------- */
