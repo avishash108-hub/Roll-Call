@@ -1,0 +1,237 @@
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Roll Call</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&amp;family=DM+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet">
+<style>
+:root{--bg:#DDE5E0;--ink:#2B3633;--mut:#586561;--card:#F8F6F2;--sky:#B3CBCD;--sage:#A9C7B2;--sage2:#5E8F72;--butter:#EBD58E;--blush:#E3A9B4;--rose:#C0617A;--line:#C3CFC8;--sh:0 6px 16px rgba(43,54,51,.2);--r:14px;--doodle:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220' fill='none' stroke='%232B3633' stroke-opacity='.15' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><path d='M30 18l4 10 11 1-8 7 3 11-10-6-10 6 3-11-8-7 11-1z'/><path d='M120 46c-14-9-18-16-12-22 5-5 11-2 12 3 1-5 7-8 12-3 6 6 2 13-12 22z'/><circle cx='176' cy='56' r='4'/><path d='M180 56V28l14-4v26'/><circle cx='190' cy='50' r='4'/><path d='M26 104q10-6 20 0 10-6 20 0v28q-10-6-20 0-10-6-20 0zM46 104v28'/><path d='M132 138l22-22 6 6-22 22-8 2zM154 116l4-4 6 6-4 4'/><circle cx='44' cy='190' r='13'/><path d='M44 190v-8M44 190l6 3'/><path d='M96 188q8-12 16 0t16 0 16 0'/><path d='M170 186q-8 0-6-8 3-7 10-4 4-8 12-3 5 4 3 9 6 1 4 6-2 4-7 4z'/><path d='M96 92l7 8 14-16'/><path d='M200 104v10M195 109h10'/><path d='M78 40q4-6 8 0t8 0'/></svg>")}
+*{box-sizing:border-box}body{margin:0;background:var(--bg) var(--doodle);background-size:220px;color:var(--ink);font:16px/1.5 'DM Sans',system-ui,sans-serif}
+h1,h2,h3{font-family:Fraunces,Georgia,serif;margin:.2em 0 .5em;line-height:1.15}h1{font-size:2rem}h2{font-size:1.4rem;margin-top:1.6em}h3{font-size:1.1rem}
+.mut,small{color:var(--mut)}[hidden]{display:none!important}
+input,select,textarea{font:inherit;color:inherit;background:var(--card);border:1.5px solid var(--line);border-radius:10px;padding:.55em .7em;max-width:100%}
+input:focus,select:focus,textarea:focus,button:focus-visible,a:focus-visible{outline:2px solid var(--sage2);outline-offset:2px}
+textarea{width:100%;min-height:90px;resize:vertical;display:block;margin:.6em 0}
+.btn{background:var(--rose);color:#fff;border:0;border-radius:12px;padding:.65em 1.3em;font:700 .95rem 'DM Sans',sans-serif;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 4px 0 #9E4A61;transition:transform .15s}
+.btn:hover{transform:translateY(-1px)}.btn:active{transform:translateY(3px);box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 1px 0 #9E4A61}
+.btn.ghost{background:var(--sky);color:var(--ink);box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 4px 0 #8DA9AC}
+.lnk{background:none;border:0;color:var(--mut);font:inherit;text-decoration:underline;cursor:pointer;padding:.2em .5em .2em 0}
+.card{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:1.1em 1.3em;margin:0 0 1em}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:1em}.grid .card{margin:0}
+.row{display:flex;align-items:center;gap:.8em;padding:.6em 0;border-bottom:1px dashed var(--line)}.row:last-child{border:0}.grow{flex:1}.per{background:var(--butter);border-radius:8px;padding:.1em .6em;font-weight:700;font-size:.85rem}
+/* auth */
+.auth{min-height:100vh;display:grid;place-items:center;padding:1em}
+.auth form{width:min(380px,100%);text-align:center;background:var(--card);border-radius:20px;box-shadow:var(--sh);padding:2em 1.8em}.auth label{display:block;text-align:left;font-weight:500;margin:.8em 0}.auth input{width:100%;margin-top:.25em}
+.err{color:#8F2D42;min-height:1.4em;font-size:.9rem}
+/* shell: sidebar acts like folder tabs */
+#app{display:grid;grid-template-columns:230px 1fr;min-height:100vh}
+aside{background:var(--sky);padding:26px 0 26px 16px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column}
+#brand{font:700 1.5rem Fraunces,serif;padding:0 1em 1em;cursor:pointer;user-select:none}
+nav{display:flex;flex-direction:column;gap:6px;flex:1}
+nav a{color:var(--ink);text-decoration:none;padding:.75em 1em;border-radius:16px 0 0 16px;transition:transform .2s,background .2s}
+nav a:hover{transform:translateX(-3px) rotate(-1deg);background:rgba(255,255,255,.5)}nav a.on{background:var(--bg);font-weight:700;box-shadow:-4px 4px 10px rgba(70,95,90,.1)}
+aside .lnk{text-align:left;padding:.8em 1em}
+main{padding:2em clamp(1em,4vw,3em) 4em;max-width:1000px;width:100%}
+/* hero + glass */
+.hero{border-radius:20px;padding:1.4em;background:var(--blush);margin-bottom:1em;box-shadow:var(--sh)}
+.glass{background:rgba(255,255,255,.4);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.6);border-radius:var(--r);padding:1.2em 1.4em;box-shadow:var(--sh)}.glass h1{margin:0}
+/* flip cards */
+.flip{perspective:900px;height:150px;cursor:pointer}.fi{position:relative;height:100%;transition:transform .6s;transform-style:preserve-3d}.flip.on .fi{transform:rotateY(180deg)}
+.fi>div{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:var(--r);box-shadow:var(--sh);padding:1em 1.2em;background:var(--card);display:flex;flex-direction:column;justify-content:space-between}
+.fi .bk{transform:rotateY(180deg);background:var(--butter)}.num{font:700 2rem Fraunces,serif}.nm{font-weight:700}
+.bar{height:10px;background:var(--line);border-radius:9px;overflow:hidden;position:relative}.bar i{display:block;height:100%;width:0;border-radius:9px;background:var(--sage2);transition:width 1s ease}.bar i.lo{background:var(--rose)}
+.bar b{position:absolute;left:75%;top:-2px;bottom:-2px;width:2px;background:var(--ink);opacity:.4}
+.big{font:700 3.4rem Fraunces,serif}
+/* segmented present/absent */
+.seg{display:flex;gap:6px}.seg input{display:none}.seg span{display:block;padding:.35em .9em;border-radius:10px;background:var(--bg);border:1.5px solid var(--line);cursor:pointer;font-size:.9rem;transition:.15s}
+.seg input:checked+span.p{background:var(--sage);border-color:var(--sage2);font-weight:700}.seg input:checked+span.a{background:var(--blush);border-color:var(--rose);font-weight:700}
+.note p{margin:.4em 0 .6em;white-space:pre-wrap}
+table{border-collapse:separate;border-spacing:6px;width:100%}th{font-family:Fraunces,serif;font-weight:500;text-align:left;padding:.3em}td select{width:100%;min-width:120px;background:var(--bg)}td select:disabled{opacity:1;color:var(--ink);font-weight:500;background:var(--sage)}
+.tw{overflow-x:auto}
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,80px);background:var(--ink);color:#fff;padding:.7em 1.2em;border-radius:12px;transition:transform .3s;z-index:20;max-width:90%}.toast.on{transform:translate(-50%,0)}
+#egg{position:fixed;inset:0;background:rgba(53,64,61,.45);display:grid;place-items:center;z-index:30}#egg .card{max-width:380px;text-align:center}
+@media(max-width:760px){#app{grid-template-columns:1fr}aside{position:fixed;bottom:0;left:0;right:0;top:auto;height:auto;flex-direction:row;padding:6px 6px 0;z-index:10;box-shadow:0 -4px 14px rgba(70,95,90,.15)}
+#brand,aside .lnk{display:none}nav{flex-direction:row;gap:2px;justify-content:space-around}nav a{font-size:.7rem;padding:.6em .4em;border-radius:12px 12px 0 0;text-align:center;flex:1}nav a:hover{transform:none}main{padding-bottom:6em}h1{font-size:1.6rem}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style></head><body>
+
+<div class="auth" id="auth" hidden=""><form id="lf">
+
+<h1>Roll Call</h1><p class="mut">Log in to see how your attendance is holding up.</p>
+<label>Email<input type="email" id="em" required="" autocomplete="email"></label>
+<label>Password<input type="password" id="pw" required="" autocomplete="current-password"></label>
+<div class="err" id="err"></div><button class="btn" style="width:100%">Log in</button><p><button type="button" class="lnk" id="pv">No server yet? Preview with sample data</button></p></form></div>
+
+<div id="app"><aside><div id="brand" title="Roll Call">Roll Call</div><nav id="nav"><a href="#dash" data-k="dash">Home</a><a href="#att" data-k="att">Attendance</a><a href="#pred" data-k="pred" class="on">Prediction</a><a href="#notes" data-k="notes">Notes</a><a href="#tt" data-k="tt">Timetable</a><a href="#subs" data-k="subs">Subjects</a></nav><button class="lnk" id="out">Log out</button></aside><main id="view"><h1>Prediction</h1><div class="card"><label>Subject <select id="ps"><option value="">Select subject</option><option value="1">Database Management Systems</option><option value="2">Data Structures</option><option value="3">Operating Systems</option></select></label></div><div id="po"></div></main></div>
+<div class="toast" id="toast"></div>
+<div id="egg" hidden=""><div class="card"><h2 id="eh"></h2><p id="et"></p><button class="btn" onclick="this.closest('#egg').hidden=true">Close</button></div></div>
+
+<script>
+/* ---------- config ---------- */
+const API='http://localhost:5000';                 // Flask base URL
+const DAYS=['Monday','Tuesday','Wednesday','Thursday','Friday'], PERIODS=8; // timetable grid size
+const PREVIEW=location.search.includes('preview')||localStorage.preview==='1'; // ?preview shows the UI with fake data, no backend
+const EGG={title:'Easter egg',text:'Put your favourite group here. Click the "Roll Call" logo five times to find me.'};
+
+/* ---------- API layer: the only place that talks to the backend ---------- */
+async function api(path,{method='GET',body,query,auth=true}={}){
+  if(PREVIEW)return mock(path,method,query,body);
+  const url=API+path+(query?'?'+new URLSearchParams(query):'');
+  const headers={'Content-Type':'application/json'};
+  if(auth)headers.Authorization='Bearer '+localStorage.token;
+  const r=await fetch(url,{method,headers,body:body?JSON.stringify(body):undefined});
+  const t=await r.text();let d;try{d=JSON.parse(t)}catch{d=t}   // some routes return plain text
+  if(r.status===401&&auth){logout();throw new Error('Session ended. Please log in again.')}
+  if(!r.ok)throw Object.assign(new Error((d&&d.error)||d||'Request failed'),{status:r.status});
+  return d;
+}
+const getNote=async date=>{try{return(await api('/notes',{query:{date}})).text}catch(e){if(e.status===404)return null;throw e}};
+const pk=(d,k)=>Object.entries(d).find(([a])=>a.startsWith(k))?.[1];   // predict keys end with " : "
+async function predict(id){const d=await api('/predict',{query:{sub_id:id}});return d.error?null:{p:+pk(d,'attendance'),s:+pk(d,'safe'),r:+pk(d,'recovery')}}
+
+/* ---------- preview-only fake backend (delete if you like) ---------- */
+const MOCK={subjects:[{sub_id:1,sub_name:'Database Management Systems'},{sub_id:2,sub_name:'Data Structures'},{sub_id:3,sub_name:'Operating Systems'}],pred:{1:[82.4,2,0],2:[71.2,0,3],3:[90,5,0]},notes:{}};
+MOCK.tt=DAYS.flatMap((d,i)=>[1,2,3,4].map(p=>{const s=MOCK.subjects[(i+p)%3];return{sub_id:s.sub_id,sub_name:s.sub_name,day:d,period_no:p}}));
+async function mock(path,method,query,body){
+  const nf=()=>{throw Object.assign(new Error('note not found'),{status:404})};
+  if(path==='/login')return{access_token:'x',refresh_token:'y'};
+  if(path==='/subjects'){if(method==='GET')return{subjects:MOCK.subjects};
+    if(method==='POST')MOCK.subjects.push({sub_id:Date.now(),sub_name:body.subject[0]});
+    if(method==='PATCH')MOCK.subjects.find(s=>s.sub_id==body.sub_id).sub_name=body.new_sub_name;
+    if(method==='DELETE')MOCK.subjects=MOCK.subjects.filter(s=>s.sub_id!=body.sub_id);return'ok'}
+  if(path==='/timetable'){if(method==='GET')return{subjects:MOCK.tt};MOCK.tt.push({...body,sub_name:MOCK.subjects.find(x=>x.sub_id==body.sub_id).sub_name});return'ok'}
+  if(path==='/attendance')return method==='GET'?{attendance:[]}:'ok';
+  if(path==='/predict'){const p=MOCK.pred[query.sub_id];return p?{'attendance percentage : ':p[0],'safe leaves : ':p[1],'recovery classes : ':p[2]}:{error:'no classes occurred yet'}}
+  if(path==='/notes'){const d=(query||body).date;
+    if(method==='GET')return MOCK.notes[d]==null?nf():{text:MOCK.notes[d]};
+    if(MOCK.notes[d]==null&&method!=='POST')nf();
+    if(method==='DELETE')delete MOCK.notes[d];else MOCK.notes[d]=body.text??body.new_note;return'ok'}
+}
+/* ---------- helpers ---------- */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const iso=d=>{const x=new Date(d);return new Date(x-x.getTimezoneOffset()*6e4).toISOString().slice(0,10)};
+const dayName=i=>new Date(i+'T00:00').toLocaleDateString('en-US',{weekday:'long'});
+const S={subjects:[],tt:[]};
+let tt_;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tt_);tt_=setTimeout(()=>t.classList.remove('on'),2800)}
+function countUp(el,to){const t0=performance.now();(function f(t){const k=Math.min((t-t0)/900,1);el.textContent=(to*k).toFixed(1)+'%';if(k<1)requestAnimationFrame(f)})(t0)}
+const mood=p=>p>=85?'Comfortably ahead.':p>=75?'Safe, but no heroics.':'Under the line. Time to show up.';
+const plural=(n,w)=>n+' '+w+(n==1?'':'es');
+const opts=(sel)=>'<option value="">Select subject</option>'+S.subjects.map(s=>`<option value="${s.sub_id}" ${s.sub_id==sel?'selected':''}>${esc(s.sub_name)}</option>`).join('');
+function animate(root){root.querySelectorAll('.num').forEach(n=>countUp(n,+n.dataset.to));setTimeout(()=>root.querySelectorAll('.bar i').forEach(b=>b.style.width=b.dataset.w+'%'),60)}
+
+/* ---------- data loaders ---------- */
+const loadSubj=async()=>{S.subjects=(await api('/subjects')).subjects||[]};
+const loadTT=async()=>{try{S.tt=(await api('/timetable')).subjects||[]}catch(e){if(e.status!==404)throw e;S.tt=[]}};
+
+/* ---------- views ---------- */
+async function dash(){
+  const today=iso(new Date()),h=new Date().getHours(),day=dayName(today),n=S.tt.filter(e=>e.day===day).length;
+  $('#view').innerHTML=`<div class="hero"><div class="glass"><h1>${h<12?'Morning':h<18?'Afternoon':'Evening'}, you.</h1><p id="rem">Checking today...</p><div id="cta"></div></div></div><h2>Your subjects</h2><div class="grid" id="stats"></div>`;
+  let done=0;try{done=((await api('/attendance',{query:{date:today}})).attendance||[]).length}catch{}
+  $('#rem').textContent=!n?'Nothing on the timetable today. How is it going otherwise?':done>=n?'All good! Today is marked. Go be a person.':`${n-done} of ${n} classes still unmarked today. It takes a minute.`;
+  if(n&&done<n)$('#cta').innerHTML='<a href="#att" class="btn" style="text-decoration:none;display:inline-block">Mark attendance</a>';
+  if(!S.subjects.length){$('#stats').innerHTML='<p class="mut">No subjects yet. Add some under Subjects.</p>';return}
+  const res=await Promise.all(S.subjects.map(s=>predict(s.sub_id).catch(()=>null)));
+  $('#stats').innerHTML=S.subjects.map((s,i)=>{const r=res[i];return`<div class="flip" tabindex="0"><div class="fi"><div><span class="nm">${esc(s.sub_name)}</span>${r?`<span class="num" data-to="${r.p}">0%</span><div class="bar"><i class="${r.p<75?'lo':''}" data-w="${Math.min(r.p,100)}"></i><b></b></div><small>${mood(r.p)}</small>`:'<span class="mut">No classes held yet.</span>'}</div><div class="bk">${r?`<span class="nm">${esc(s.sub_name)}</span><span>Safe leaves: <b>${r.s}</b></span><span>Recovery classes: <b>${r.r}</b></span><small>tap to flip back</small>`:'<span>Nothing to predict yet.</span>'}</div></div></div>`}).join('');
+  document.querySelectorAll('.flip').forEach(f=>{f.onclick=()=>f.classList.toggle('on');f.onkeydown=e=>e.key=='Enter'&&f.classList.toggle('on')});
+  animate($('#stats'));
+}
+
+async function att(){
+  let date=iso(new Date()),orig={},note=null;
+  $('#view').innerHTML=`<h1>Attendance</h1><div class="card"><label>Date <input type="date" id="d" value="${date}"></label></div><div class="card" id="rows"></div><div class="card"><h3>Note for the day</h3><textarea id="nt" placeholder="Anything worth remembering?"></textarea></div><button class="btn" id="sv">Save all</button>`;
+  const rowsFor=()=>S.tt.filter(e=>e.day===dayName(date)).sort((a,b)=>a.period_no-b.period_no);
+  async function load(){
+    date=$('#d').value;orig={};
+    try{((await api('/attendance',{query:{date}})).attendance||[]).forEach(a=>orig[a.period]=String(a.status).toLowerCase())}catch{}
+    const rows=rowsFor();
+    $('#rows').innerHTML=rows.length?rows.map(e=>`<div class="row"><span class="per">P${e.period_no}</span><span class="grow">${esc(e.sub_name)}</span><span class="seg">${['present','absent'].map(s=>`<label><input type="radio" name="p${e.period_no}" value="${s}" ${orig[e.period_no]===s?'checked':''}><span class="${s[0]}">${s}</span></label>`).join('')}</span></div>`).join(''):`<p class="mut">Nothing on the timetable for ${dayName(date)}. Fill it in under Timetable.</p>`;
+    note=await getNote(date);$('#nt').value=note??'';
+  }
+  $('#d').onchange=()=>load().catch(e=>toast(e.message));
+  $('#sv').onclick=async()=>{try{
+    for(const e of rowsFor()){const c=document.querySelector(`input[name=p${e.period_no}]:checked`);
+      if(c&&c.value!==orig[e.period_no])await api('/attendance',{method:'POST',body:{sub_id:e.sub_id,date,status:c.value,period_no:e.period_no}})}
+    const t=$('#nt').value.trim();
+    if(t&&t!==note)await api('/notes',note===null?{method:'POST',body:{text:t,date}}:{method:'PATCH',body:{date,new_note:t}});
+    toast('Saved. Nice work.');await load();
+  }catch(e){toast(e.message)}};
+  await load();
+}
+
+async function pred(){
+  $('#view').innerHTML=`<h1>Prediction</h1><div class="card"><label>Subject <select id="ps">${opts()}</select></label></div><div id="po"></div>`;
+  $('#ps').onchange=async e=>{
+    const o=$('#po');if(!e.target.value){o.innerHTML='';return}
+    try{const r=await predict(e.target.value);
+      if(!r){o.innerHTML='<div class="card"><p>No classes have been held for this subject yet, so there is nothing to predict.</p></div>';return}
+      o.innerHTML=`<div class="card"><div class="big num" data-to="${r.p}">0%</div><div class="bar"><i class="${r.p<75?'lo':''}" data-w="${Math.min(r.p,100)}"></i><b></b></div><small>The line marks 75%.</small>
+      <p>${r.p>=75?`You can skip ${plural(r.s,'class')} and still sit at 75%.`:`Attend ${plural(r.r,'class')} in a row to climb back to 75%.`} ${mood(r.p)}</p></div>
+      <div class="card"><h3>What happens if I miss?</h3><label>Classes missed <input type="number" id="wi" min="0" value="1" style="width:5em"></label><p id="wo"></p></div>`;
+      animate(o);
+      const calc=()=>{const n=Math.max(0,+$('#wi').value||0);$('#wo').textContent=n===0?'Nothing changes.':n<=r.s?`Missing ${n}: still at or above 75%, with ${r.s-n} spare after that.`:`Missing ${n}: that is ${n-r.s} past your safe limit. You would drop under 75% and need to attend more to recover.`};
+      $('#wi').oninput=calc;calc();
+    }catch(x){toast(x.message)}};
+}
+
+async function notes(){
+  let days=14;
+  $('#view').innerHTML=`<h1>Notes</h1><div class="card"><input type="date" id="nd" value="${iso(new Date())}"><textarea id="nt2" placeholder="Write a note for this date"></textarea><button class="btn" id="ns">Save note</button></div><div class="grid" id="nb"></div><p><button class="btn ghost" id="more">Load earlier</button></p>`;
+  let cur=null;
+  const sync=async()=>{cur=await getNote($('#nd').value);$('#nt2').value=cur??''};
+  async function list(){
+    const ds=[...Array(days)].map((_,i)=>iso(Date.now()-i*864e5));
+    const res=await Promise.all(ds.map(d=>getNote(d).catch(()=>null)));
+    $('#nb').innerHTML=ds.map((d,i)=>res[i]==null?'':`<div class="card note"><small>${new Date(d+'T00:00').toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'})}</small><p>${esc(res[i])}</p><button class="lnk" data-e="${d}">Edit</button><button class="lnk" data-x="${d}">Delete</button></div>`).join('')||'<p class="mut">No notes in this stretch of days.</p>';
+  }
+  $('#nd').onchange=()=>sync().catch(e=>toast(e.message));
+  $('#ns').onclick=async()=>{const t=$('#nt2').value.trim(),date=$('#nd').value;if(!t)return toast('Write something first.');
+    try{await api('/notes',cur===null?{method:'POST',body:{text:t,date}}:{method:'PATCH',body:{date,new_note:t}});toast('Note saved.');await sync();await list()}catch(e){toast(e.message)}};
+  $('#more').onclick=()=>{days+=14;list()};
+  $('#nb').onclick=async e=>{const b=e.target;
+    if(b.dataset.e){$('#nd').value=b.dataset.e;await sync();scrollTo({top:0,behavior:'smooth'})}
+    if(b.dataset.x&&confirm('Delete this note?')){try{await api('/notes',{method:'DELETE',body:{date:b.dataset.x}});toast('Note deleted.');await sync();await list()}catch(x){toast(x.message)}}};
+  await sync();await list();
+}
+
+async function tt(){
+  const find=(d,p)=>S.tt.find(e=>e.day===d&&e.period_no===p);
+  $('#view').innerHTML=`<h1>Timetable</h1><div class="card tw"><table><tr><th></th>${DAYS.map(d=>`<th>${d.slice(0,3)}</th>`).join('')}</tr>${[...Array(PERIODS)].map((_,i)=>`<tr><th>P${i+1}</th>${DAYS.map(d=>{const e=find(d,i+1);return`<td><select data-d="${d}" data-p="${i+1}" ${e?'disabled':''}>${opts(e?.sub_id)}</select></td>`}).join('')}</tr>`).join('')}</table></div><p class="mut">Pick a subject to place it. A saved period is locked because the backend has no edit or remove for the timetable yet.</p>`;
+  $('#view table').onchange=async e=>{const s=e.target;if(!s.value)return;
+    try{await api('/timetable',{method:'POST',body:{sub_id:+s.value,day:s.dataset.d,period_no:+s.dataset.p}});await loadTT();s.disabled=true;toast('Period saved.')}
+    catch(x){toast(x.message);s.value=''}};
+}
+
+async function subs(){
+  const draw=()=>{$('#sl').innerHTML=S.subjects.map(s=>`<div class="row"><input class="grow" value="${esc(s.sub_name)}" disabled data-id="${s.sub_id}"><button class="lnk" data-ed="${s.sub_id}">Edit</button><button class="lnk" data-del="${s.sub_id}">Delete</button></div>`).join('')||'<p class="mut">No subjects yet. Add your first one above.</p>'};
+  $('#view').innerHTML=`<h1>Subjects</h1><div class="card"><div class="row" style="border:0"><input id="sn" class="grow" placeholder="Subject name"><button class="btn" id="sa">Add subject</button></div></div><div class="card" id="sl"></div>`;
+  draw();
+  $('#sa').onclick=async()=>{const n=$('#sn').value.trim();if(!n)return;
+    try{await api('/subjects',{method:'POST',body:{subject:[n],sub_name:n}});$('#sn').value='';await loadSubj();draw();toast('Subject added.')}catch(e){toast(e.message)}};
+  $('#sl').onclick=async e=>{const b=e.target,id=b.dataset.ed||b.dataset.del;if(!id)return;const inp=$(`input[data-id="${id}"]`);
+    try{
+      if(b.dataset.del){if(!confirm('Remove this subject?'))return;await api('/subjects',{method:'DELETE',body:{sub_id:+id}});await Promise.all([loadSubj(),loadTT()]);draw();toast('Subject removed.')}
+      else if(inp.disabled){inp.disabled=false;inp.focus();b.textContent='Save'}
+      else{await api('/subjects',{method:'PATCH',body:{sub_id:+id,new_sub_name:inp.value.trim()}});await Promise.all([loadSubj(),loadTT()]);draw();toast('Subject updated.')}
+    }catch(x){toast(x.message)}};
+}
+
+/* ---------- router + session ---------- */
+const R={dash:['Home',dash],att:['Attendance',att],pred:['Prediction',pred],notes:['Notes',notes],tt:['Timetable',tt],subs:['Subjects',subs]};
+$('#nav').innerHTML=Object.entries(R).map(([k,v])=>`<a href="#${k}" data-k="${k}">${v[0]}</a>`).join('');
+function route(){if(!localStorage.token)return;const k=R[location.hash.slice(1)]?location.hash.slice(1):'dash';
+  document.querySelectorAll('#nav a').forEach(a=>a.classList.toggle('on',a.dataset.k===k));R[k][1]().catch(e=>toast(e.message))}
+async function start(){$('#auth').hidden=true;$('#app').hidden=false;
+  try{await Promise.all([loadSubj(),loadTT()])}catch(e){toast(e.message)}route()}
+function logout(){localStorage.clear();$('#app').hidden=true;$('#auth').hidden=false;location.hash=''}
+addEventListener('hashchange',route);$('#out').onclick=logout;
+$('#lf').onsubmit=async e=>{e.preventDefault();$('#err').textContent='';
+  try{const d=await api('/login',{method:'POST',auth:false,body:{email:$('#em').value,password:$('#pw').value}});
+    localStorage.token=d.access_token;localStorage.refresh=d.refresh_token;start()}
+  catch(x){$('#err').textContent=x.message==='Failed to fetch'?'Cannot reach the server. Is Flask running with CORS on?':x.message}};
+let clicks=0;$('#brand').onclick=()=>{if(++clicks>=5){clicks=0;$('#eh').textContent=EGG.title;$('#et').textContent=EGG.text;$('#egg').hidden=false}};
+$('#pv').onclick=()=>{localStorage.preview='1';localStorage.token='preview';location.hash='';location.reload()};
+if(PREVIEW)localStorage.token='preview';
+if(localStorage.token)start();
+</script>
+</body></html>
