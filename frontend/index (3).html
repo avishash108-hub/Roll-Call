@@ -60,7 +60,7 @@ table{border-collapse:separate;border-spacing:6px;width:100%}th{font-family:Frau
 <h1>Roll Call</h1><p class="mut">Log in to see how your attendance is holding up.</p>
 <label>Email<input type="email" id="em" required autocomplete="email"></label>
 <label>Password<input type="password" id="pw" required autocomplete="current-password"></label>
-<div class="err" id="err"></div><button class="btn" style="width:100%">Log in</button><p><button type="button" class="lnk" id="pv">No server yet? Preview with sample data</button></p><p class="mut">New here? <a href="register.html" style="color:var(--ink);font-weight:700">Create an account</a></p></form></div>
+<div class="err" id="err"></div><button class="btn" style="width:100%">Log in</button><p class="mut">New here? <a href="register.html" style="color:var(--ink);font-weight:700">Create an account</a></p></form></div>
 
 <div id="app" hidden><aside><div id="brand" title="Roll Call">Roll Call</div><nav id="nav"></nav><button class="lnk" id="out">Log out</button></aside><main id="view"></main></div>
 <div class="toast" id="toast"></div>
@@ -258,7 +258,6 @@ $('#lf').onsubmit=async e=>{e.preventDefault();$('#err').textContent='';
     localStorage.token=d.access_token;localStorage.refresh=d.refresh_token;start()}
   catch(x){$('#err').textContent=x.message==='Failed to fetch'?'Cannot reach the server. Is Flask running with CORS on?':x.message}};
 let clicks=0;$('#brand').onclick=()=>{if(++clicks>=5){clicks=0;showEgg(EGG.title,EGG.text)}};
-$('#pv').onclick=()=>{localStorage.preview='1';localStorage.token='preview';location.hash='';location.reload()};
 if(PREVIEW)localStorage.token='preview';
 if(localStorage.token)start();
 </script></body></html>
