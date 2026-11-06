@@ -2,6 +2,33 @@ from flask import Blueprint, jsonify, request
 from backend.db.connection import get_db_connection
 from auth.decorators import token_req
 notes_bp = Blueprint("notes", __name__)
+
+@notes_bp.route("/notes", methods = ["POST"])
+@token_req
+def add_notes(id):
+ stud_id = 1
+ data = request.get_json()
+ text = data.get("text", "")
+ date = data.get("date", "")
+
+ #sql query
+ con = get_db_connection()
+ cur = con.cursor()
+ cur.execute('''
+  insert into notes(
+   stud_id,
+   date,
+   text
+  ) 
+  values(%s, %s, %s)''', 
+  (id, date, text)
+) #one element tuple, we use tuples to pass values here
+ con.commit()
+ cur.close()
+ con.close()
+ return "note added successfully", 200
+
+
 @notes_bp.route("/notes", methods = ["GET"])
 @token_req
 def fetch_notes(id):
